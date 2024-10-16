@@ -1,101 +1,131 @@
-import Image from "next/image";
+"use client";
+import { useState } from "react";
+import Confetti from "react-confetti";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  
+  
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const [isStart, setStart] = useState(false);
+  const [isGuess, setGuess] = useState(false);
+  const [isHint, setHint] = useState(false);
+  const [input, setInput] = useState("");
+  const [randomNumber, setRandomNumber] = useState(0);
+  const [hintMessage, setHintMessage] = useState("");
+  const [win, setWin] = useState(false); // State to track if the user won
+
+
+  const startHandler = () => {
+    setStart(true);
+    setInput("");
+    setGuess(false);
+    setHint(false);
+    setRandomNumber(Math.floor(Math.random() * 10) + 1); // Generate new random number when starting
+    setWin(false); // Reset win state when starting a new game
+  };
+
+  const playAgainHandler = () => {
+    setGuess(false);
+    setHint(false);
+    setInput("");
+    setRandomNumber(Math.floor(Math.random() * 10) + 1); // Generate new random number for the next round
+    setWin(false); // Reset win state when playing again
+  };
+
+  const getHintHandler = () => {
+    setHint(true);
+    if (randomNumber <= 4) {
+      setHintMessage("Computer guessing number is between 1 to 4");
+    } else if (randomNumber <= 7) {
+      setHintMessage("Computer guessing number is between 4 to 7");
+    } else {
+      setHintMessage("Computer guessing number is between 8 to 10");
+    }
+  };
+
+  const guessHandler = () => {
+    setGuess(!isGuess);
+    setHint(false);
+    if (parseInt(input) === randomNumber) {
+      setWin(true); // Set win state if the guess is correct
+      setTimeout(() => setWin(false), 6000); // Reset win state after 6 seconds
+    }
+  };
+
+  return (
+    <body className="bg-gradient-to-r from-cyan-400 to-blue-400 ...">
+    <main className=" flex flex-col justify-start items-center mx-auto mw-full mt-8 py-14 bg-blue-300 w-96 h-full rounded-lg gap-3">
+       {win && <Confetti />} {/* Show confetti when the user wins */}
+      <h1 className="text-black text-2xl font-bold font-serif underline-offset-1 italic">Number Guessing Game</h1>
+      {isHint ? (
+        <p className="text-gray-500">{hintMessage}</p>
+      ) : (
+        <p className="text-gray-700 font-serif">Guess the number between 1 to 10</p>
+      )}
+      <button
+        onClick={startHandler}
+        className="bg-gray-800 font-medium font-serif text-white px-4 py-3 rounded-xl hover:bg-gray-600"
+      >
+        Start Game
+      </button>
+
+      {isStart && (
+        <div className="flex flex-col gap-1 items-center justify-center">
+          <input
+            onChange={(e) => setInput(e.target.value)}
+            value={input}
+            type="text"
+            placeholder="Enter your guess number..."
+            className="w-[250px] py-2 px-4 font-light rounded-lg outline-none border focus:border-blue-600 text-black"
+          />
+          <div className="flex gap-4 justify-center items-center mt-6">
+            <button
+              onClick={guessHandler}
+              className="bg-gray-800 text-white font-medium px-4 py-3 rounded-xl font-serif hover:bg-gray-600"
+            >
+              Guess
+            </button>
+            <button
+              onClick={getHintHandler}
+              className="bg-gray-800 text-white font-meedium px-4 py-3 font-serif rounded-xl hover:bg-gray-600"
+            >
+              Get Hint
+            </button>
+          </div>
+
+          {isGuess && (
+            <div className="flex flex-col items-center justify-center">
+              {input ? (
+                <div className="flex flex-col items-center justify-center">
+                  <p className="text-gray-700 text-center text-sm px-6">
+                    Your Guess number is {input} and computer random number is{" "}
+                    {randomNumber}
+                  </p>
+                  <p
+                    className={`${
+                      parseInt(input) === randomNumber ? "text-green-600" : "text-red-600"
+                    } text-center mt-3 font-semibold`}
+                  >
+                    {parseInt(input) === randomNumber
+                      ? " YOU WON THIS GAME...🥳"
+                      : "YOU LOST THIS GAME...😞"}
+                  </p>
+                </div>
+              ) : (
+                <p className="text-red-600 font-serif">Enter your guess number</p>
+              )}
+              <button
+                onClick={playAgainHandler}
+                className="bg-black text-white font-serif px-4 py-3 rounded-xl hover:bg-gray-700 mt-3"
+              >
+                Play Again
+              </button>
+            </div>
+          )}
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+      )}
+    </main>
+    </body>
   );
+  
 }
